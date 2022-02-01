@@ -63,7 +63,7 @@ void FilePOSIX::Open(const std::string &name, const Mode openMode,
     auto lf_AsyncOpenWrite = [&](const std::string &name) -> int {
         ProfilerStart("open");
         errno = 0;
-        int FD = open(m_Name.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        int FD = open(m_Name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_DIRECT, 0666);
         m_Errno = errno;
         ProfilerStop("open");
         return FD;
@@ -87,7 +87,7 @@ void FilePOSIX::Open(const std::string &name, const Mode openMode,
             ProfilerStart("open");
             errno = 0;
             m_FileDescriptor =
-                open(m_Name.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+                open(m_Name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_DIRECT, 0666);
             m_Errno = errno;
             ProfilerStop("open");
         }
@@ -97,7 +97,7 @@ void FilePOSIX::Open(const std::string &name, const Mode openMode,
         ProfilerStart("open");
         errno = 0;
         // m_FileDescriptor = open(m_Name.c_str(), O_RDWR);
-        m_FileDescriptor = open(m_Name.c_str(), O_RDWR | O_CREAT, 0777);
+        m_FileDescriptor = open(m_Name.c_str(), O_RDWR | O_CREAT | O_DIRECT, 0777);
         lseek(m_FileDescriptor, 0, SEEK_END);
         m_Errno = errno;
         ProfilerStop("open");
@@ -129,7 +129,7 @@ void FilePOSIX::OpenChain(const std::string &name, Mode openMode,
     auto lf_AsyncOpenWrite = [&](const std::string &name) -> int {
         ProfilerStart("open");
         errno = 0;
-        int FD = open(m_Name.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        int FD = open(m_Name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_DIRECT, 0666);
         m_Errno = errno;
         ProfilerStop("open");
         return FD;
@@ -165,11 +165,11 @@ void FilePOSIX::OpenChain(const std::string &name, Mode openMode,
             if (chainComm.Rank() == 0)
             {
                 m_FileDescriptor =
-                    open(m_Name.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+                    open(m_Name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_DIRECT, 0666);
             }
             else
             {
-                m_FileDescriptor = open(m_Name.c_str(), O_WRONLY, 0666);
+                m_FileDescriptor = open(m_Name.c_str(), O_WRONLY | O_DIRECT, 0666);
                 lseek(m_FileDescriptor, 0, SEEK_SET);
             }
             m_Errno = errno;
@@ -182,7 +182,7 @@ void FilePOSIX::OpenChain(const std::string &name, Mode openMode,
         errno = 0;
         if (chainComm.Rank() == 0)
         {
-            m_FileDescriptor = open(m_Name.c_str(), O_RDWR | O_CREAT, 0666);
+            m_FileDescriptor = open(m_Name.c_str(), O_RDWR | O_CREAT | O_DIRECT, 0666);
         }
         else
         {
